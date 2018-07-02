@@ -164,6 +164,7 @@ namespace HuaLiQin.Model
         private string _f_108;
         private string _f_109;
         private string _f_110;
+        private string _f_111;
         private string _fchartnumber;
         private int? _fcubicmeasure;
         private decimal? _fgrossweight;
@@ -1445,6 +1446,14 @@ namespace HuaLiQin.Model
         {
             set { _f_110 = value; }
             get { return _f_110; }
+        }
+        /// <summary>
+        ///  助记码二
+        /// </summary>
+        public string F_111
+        {
+            set { _f_111 = value; }
+            get { return _f_111; }
         }
         /// <summary>
         /// 

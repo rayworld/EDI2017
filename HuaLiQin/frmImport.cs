@@ -4,6 +4,7 @@ using HuaLiQin.DAL;
 using System;
 using System.Data;
 using System.Data.OleDb;
+using System.Windows.Forms;
 
 namespace HuaLiQin
 {
@@ -45,7 +46,7 @@ namespace HuaLiQin
                     FileType = "";
                 }
                 //MessageBox.Show(FileType);
-                DesktopAlert.Show(FileType);
+                //DesktopAlert.Show(FileType);
                 dataGridView1.DataSource = dt;
                 dataGridView1.Rows[0].Cells[0].Selected = false;
             }
@@ -110,9 +111,9 @@ namespace HuaLiQin
             if (strFileName != "")
             {
                 //office 2003 
-                string conn = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + strFileName + ";Extended Properties='Excel 8.0;HDR=YES;IMEX=1'";
+                //string conn = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + strFileName + ";Extended Properties='Excel 8.0;HDR=YES;IMEX=1'";
                 //office 2007
-                //string conn = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + strFileName + ";Extended Properties='Excel 12.0;HDR=YES;IMEX=1'";  
+                string conn = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + strFileName + ";Extended Properties='Excel 12.0;HDR=YES;IMEX=1'";  
                 string sql = "select f0, f1 ,f2, f3, f4, f5, f6, f7, f8, [注册证号] as f9 from [" + strSheetName + "$]";
                 //string sql = "SELECT * FROM OpenDataSource('Microsoft.Jet.OLEDB.4.0','Data Source=" + strFileName + ";Extended Properties='Excel 8.0;HDR=Yes;';Persist Security Info=False')...Sheet1$";
                 OleDbDataAdapter da = new OleDbDataAdapter(sql, conn);
@@ -286,13 +287,13 @@ namespace HuaLiQin
                 else
                 {
                     //MessageBox.Show(fAlconItemID + "产品编号不存在！");
-                    DesktopAlert.Show("<H2>" + "产品编号不存在！" + "</H2>");
+                    DesktopAlert.Show("<h2>" + fAlconItemID + "产品编号不存在！" + "</h2>");
                     dataGridView1.Rows[i].Selected = true;
                 }
             }
 
-            //MessageBox.Show("总共有 " + dt.Rows.Count.ToString() + " 条记录," + "导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！");
-            DesktopAlert.Show("<H2>" + "总共有 " + dt.Rows.Count.ToString() + " 条记录," + "导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！" + "</H2>");
+            MessageBox.Show("总共有 " + dt.Rows.Count.ToString() + " 条记录," + "导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！");
+            //DesktopAlert.Show("<h2>" + "总共有 " + dt.Rows.Count.ToString() + " 条记录," + "导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！" + "</h2>");
             return retVal;
         }
 
@@ -369,7 +370,7 @@ namespace HuaLiQin
                 int fAuxPropID = dalAuxItem.getAuxPropIDByKey(dt.Rows[i][9].ToString());
                 if (fAuxPropID == 0)
                 {
-                    DesktopAlert.Show("无效的注册证号！");
+                    DesktopAlert.Show("<h2>第" + (i+ 1).ToString() + "行的注册证号无效！" + "</h2>");
                 }
 
                 if (dalICItem.Exists(fAlconItemID) == true)
@@ -423,21 +424,26 @@ namespace HuaLiQin
                         fEntryID++;
                         successCount++;
                     }
+                    else
+                    {
+                        DesktopAlert.Show("!!!");
+                    }
                 }
                 else
                 {
                     //MessageBox.Show(fAlconItemID + "产品编号不存在！");
-                    DesktopAlert.Show("<H2>" + "产品编号不存在！" + "</H2>");
+                    DesktopAlert.Show("<h2>" + "产品编号不存在！" + "</h2>");
                     dataGridView1.Rows[i].Selected = true;
 
                 }
             }
 
-            //MessageBox.Show("总共有 " + dt.Rows.Count.ToString() + " 条记录," + "导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！");
-            DesktopAlert.Show("<H2>" + "总共有 " + dt.Rows.Count.ToString() + " 条记录," + "导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！" + "</H2>");
+            //MessageBox.Show("总共有 " + dt.Rows.Count.ToString() + " 条记录,导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！");
+            DesktopAlert.Show("<h2>" + "总共有 " + dt.Rows.Count.ToString() + " 条记录,导入失败 " + (dt.Rows.Count - successCount).ToString() + " 条！" + "</h2>");
             return retVal;
         }
         #endregion
+
         #endregion
     }
 }

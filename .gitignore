@@ -187,3 +187,7 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/.vs/HuaLiQin/v15/Server/sqlite3/storage.ide-wal
+/.vs/HuaLiQin/v15/Server/sqlite3/storage.ide-shm
+/.vs/HuaLiQin/v15/Server/sqlite3/storage.ide
+/.vs/HuaLiQin/v15/Server/sqlite3/db.lock

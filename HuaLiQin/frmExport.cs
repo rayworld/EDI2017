@@ -5,9 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using DevComponents.DotNetBar;
-using Ray.Framework.Config;
 using Ray.Framework.DBUtility;
-using Ray.Framework.Encrypt;
 
 namespace HuaLiQin
 {
@@ -20,7 +18,10 @@ namespace HuaLiQin
 
         #region public Ver
         DataTable dt = new DataTable();
-        string stockNames = "'CSW','CSW1','CSW2','CSW3','CSW4','CSW5','RET','EPD','JWI','JQU','JDA'";
+        // 使用助记码
+        string stockNames = "'CSW','CSW1','RET','EPD','JWI','JQU','JDA'";
+        // 使用助记码2
+        string stockName1 = "'JQU1','EPD1','JDA1','JWI1','CSW2'";
         #endregion
 
         #region Event
@@ -55,6 +56,15 @@ namespace HuaLiQin
             cmdCP.Append(" inner join t_ICItem on t_ICItem.FItemID = POInStockEntry.FItemID  ");
             cmdCP.Append(" inner join t_Stock on t_Stock.FItemID = POInStockEntry.FStockID  ");
             cmdCP.Append(" WHERE FHeadSelfP0342 = '" + OperateDate + "'");
+            cmdCP.Append(" AND t_Stock.FName in(" + stockNames + ") ");
+            cmdCP.Append(" union all ");
+            cmdCP.Append(" SELECT  POInStock.FHeadSelfP0341 as ORNUM,	'O' as ORGRP,	'O' as ORORIN,	POInStock.FDate as ORCDAT,	POInStock.FCheckDate as ORSELID,	'O' as ORBUYID,	'O' as ORSUNO,	'O' as ORSNAM,	'O' as ORSAD1,	'O' as ORSAD2,	'O' as ORSAD3,	'O' as ORSAD4,	'O' as ORCITY,	'O' as OROCTR,	POInStockEntry.FEntrySelfP0386 as OROLIN,	t_ICItem .F_111  as ORPRDC,	POInStockEntry.fQty as ORRQTY,	'EA' as ORUOM, SUBSTRING(t_Stock.FName,1,3)  as ORSROM  ");
+            cmdCP.Append(" FROM POInStock ");
+            cmdCP.Append(" inner join POInStockEntry on POInStock .FInterID = POInStockEntry .FInterID  ");
+            cmdCP.Append(" inner join t_ICItem on t_ICItem.FItemID = POInStockEntry.FItemID  ");
+            cmdCP.Append(" inner join t_Stock on t_Stock.FItemID = POInStockEntry.FStockID  ");
+            cmdCP.Append(" WHERE FHeadSelfP0342 = '" + OperateDate + "'");
+            cmdCP.Append(" AND t_Stock.FName in(" + stockName1 + ") ");
 
             StringBuilder cmdSM = new StringBuilder();
             cmdSM.Append(" select t_ICItem.FHelpCode  ,	SUBSTRING(t_Stock.FName,1,3) ,	ICStockBillEntry.FQty ,	1  as FTranType ,		t_Item_3005.FName ,	ICStockBill.FDate,	ICStockBill.FBillNo from 	ICStockBill 	inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID 	inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry.FItemID 	inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FDCStockID 	inner join t_Item_3005 on t_Item_3005.FItemID =  ICStockBill.FHeadSelfc0132 where 	FTranType = 40	and t_Stock.FName in(" + stockNames + ") and ICStockBill.FDate = '" + OperateDate + "'");
@@ -64,6 +74,14 @@ namespace HuaLiQin
             cmdSM.Append(" select 	t_ICItem.FHelpCode  ,	SUBSTRING(t_Stock.FName,1,3) ,	ICStockBillEntry.FQty ,	1  as FTranType ,		'W' ,	ICStockBill.FDate,	ICStockBill.FBillNo from 	ICStockBill 	inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID 	inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry.FItemID 	inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FDCStockID where 	FTranType = 41	and t_Stock.FName in(" + stockNames + ") and ICStockBill.FDate = '" + OperateDate + "'");
             cmdSM.Append(" union all ");
             cmdSM.Append(" select 	t_ICItem.FHelpCode  ,	SUBSTRING(t_Stock.FName,1,3) ,	ICStockBillEntry.FQty ,	-1  as FTranType ,		'W' ,	ICStockBill.FDate,	ICStockBill.FBillNo from 	ICStockBill 	inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID 	inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry.FItemID 	inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FSCStockID where 	FTranType = 41	and t_Stock.FName in(" + stockNames + ") and ICStockBill.FDate = '" + OperateDate + "'");
+            cmdSM.Append(" union all ");
+            cmdSM.Append(" select t_ICItem.F_111  , SUBSTRING(t_Stock.FName,1,3), ICStockBillEntry.FQty ,	1  as FTranType ,		t_Item_3005.FName ,	ICStockBill.FDate,	ICStockBill.FBillNo from 	ICStockBill 	inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID 	inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry.FItemID 	inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FDCStockID 	inner join t_Item_3005 on t_Item_3005.FItemID =  ICStockBill.FHeadSelfc0132 where 	FTranType = 40	and t_Stock.FName in(" + stockName1 + ") and ICStockBill.FDate = '" + OperateDate + "'");
+            cmdSM.Append(" union all ");
+            cmdSM.Append(" select t_ICItem.F_111  ,	SUBSTRING(t_Stock.FName,1,3), ICStockBillEntry.FQty ,	-1  as FTranType ,		t_Item_3005.FName ,	ICStockBill.FDate,	ICStockBill.FBillNo from 	ICStockBill 	inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID 	inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry.FItemID 	inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FDCStockID 	inner join t_Item_3005 on t_Item_3005.FItemID =  ICStockBill.FHeadSelfc0232 where 	FTranType = 43	and t_Stock.FName in(" + stockName1 + ") and ICStockBill.FDate = '" + OperateDate + "'");
+            cmdSM.Append(" union all ");
+            cmdSM.Append(" select t_ICItem.F_111  ,	SUBSTRING(t_Stock.FName,1,3), ICStockBillEntry.FQty ,	1  as FTranType ,		'W' ,	ICStockBill.FDate,	ICStockBill.FBillNo from 	ICStockBill 	inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID 	inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry.FItemID 	inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FDCStockID where 	FTranType = 41	and t_Stock.FName in(" + stockName1 + ") and ICStockBill.FDate = '" + OperateDate + "'");
+            cmdSM.Append(" union all ");
+            cmdSM.Append(" select t_ICItem.F_111  ,	SUBSTRING(t_Stock.FName,1,3), ICStockBillEntry.FQty ,	-1  as FTranType ,		'W' ,	ICStockBill.FDate,	ICStockBill.FBillNo from 	ICStockBill 	inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID 	inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry.FItemID 	inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FSCStockID where 	FTranType = 41	and t_Stock.FName in(" + stockName1 + ") and ICStockBill.FDate = '" + OperateDate + "'");
 
             StringBuilder cmdSB = new StringBuilder();
             cmdSB.Append("select t_ICItem.FHelpCode, SUBSTRING(t_Stock.FName,1,3)  , sum(ICInventory.FQty)  from ICInventory  ");
@@ -71,6 +89,12 @@ namespace HuaLiQin
             cmdSB.Append(" inner join t_Stock on t_Stock.FItemID = ICInventory.FStockID  ");
             cmdSB.Append(" where t_Stock.FName in(" + stockNames + ") ");
             cmdSB.Append(" group by t_ICItem.FHelpCode,t_Stock.FName ");
+            cmdSB.Append(" union all ");
+            cmdSB.Append("select t_ICItem.F_111,  SUBSTRING(t_Stock.FName,1,3), sum(ICInventory.FQty)  from ICInventory  ");
+            cmdSB.Append(" inner join t_ICItem on t_ICItem.FItemID = ICInventory .FItemID  ");
+            cmdSB.Append(" inner join t_Stock on t_Stock.FItemID = ICInventory.FStockID  ");
+            cmdSB.Append(" where t_Stock.FName in(" + stockName1 + ") ");
+            cmdSB.Append(" group by t_ICItem.F_111,t_Stock.FName ");
 
             StringBuilder cmdCO = new StringBuilder();
             cmdCO.Append(" select ICStockBill.frob, ICStockBill.fdate,ICStockBill.FBillNo,ICStockBillEntry .FEntryID,t_Organization.f_112 ,t_ICItem .FHelpCode,t_Item_3001.FName as OrderType,SUBSTRING(t_Stock.FName,1,3) ,abs(ICStockBillEntry .fqty),abs(ICStockBillEntry.FConsignPrice * 1000/1.17) as UnitPrice ,abs(ICStockBillEntry .fqty * ICStockBillEntry.FConsignPrice * 1000/1.17) as GrossAmount,ICStockBill.fheadselfb0939 as TransactionType,ICStockBill.FHeadSelfA9739 as ReasonCode,	ICSale .FBillNo ,ICStockBillEntry .FEntryID, abs(ICStockBillEntry .fqty * ICStockBillEntry.FConsignPrice * 1000/1.17*0.17) as TaxAmount, 1 as Mormal ");
@@ -92,6 +116,26 @@ namespace HuaLiQin
             cmdCO.Append(" left join t_Item_3001 on t_Item_3001.FItemID = ICStockBill.FHeadSelfB0940 ");
             cmdCO.Append(" left join ICSale   on ICSale  .FInterID = ICStockBill.FRelateInvoiceID ");
             cmdCO.Append(" where ICStockBill.FTranType = 29 and t_Stock.FName in(" + stockNames + ") and ICStockBill.FDate = '" + OperateDate + "'");
+            cmdCO.Append(" UNION ALL ");
+            cmdCO.Append(" select ICStockBill.frob, ICStockBill.fdate,ICStockBill.FBillNo,ICStockBillEntry .FEntryID,t_Organization.f_112 ,t_ICItem .F_111,t_Item_3001.FName as OrderType,  SUBSTRING(t_Stock.FName,1,3), abs(ICStockBillEntry .fqty),abs(ICStockBillEntry.FConsignPrice * 1000/1.17) as UnitPrice ,abs(ICStockBillEntry .fqty * ICStockBillEntry.FConsignPrice * 1000/1.17) as GrossAmount,ICStockBill.fheadselfb0939 as TransactionType,ICStockBill.FHeadSelfA9739 as ReasonCode,	ICSale .FBillNo ,ICStockBillEntry .FEntryID, abs(ICStockBillEntry .fqty * ICStockBillEntry.FConsignPrice * 1000/1.17*0.17) as TaxAmount, 1 as Mormal ");
+            cmdCO.Append(" from ICStockBill ");
+            cmdCO.Append(" inner join t_Organization on t_Organization .FItemID = ICStockBill .FSupplyID ");
+            cmdCO.Append(" inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID ");
+            cmdCO.Append(" inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry .FItemID ");
+            cmdCO.Append(" inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FDCStockID ");
+            cmdCO.Append(" left join t_Item_3001 on t_Item_3001.FItemID = ICStockBill.FHeadSelfB0154 ");
+            cmdCO.Append(" left join ICSale   on ICSale  .FInterID = ICStockBill.FRelateInvoiceID ");
+            cmdCO.Append(" where ICStockBill.FTranType = 21 and t_Stock.FName in(" + stockName1 + ") and  ICStockBill.FDate = '" + OperateDate + "'");
+            cmdCO.Append(" UNION ALL ");
+            cmdCO.Append(" select	ICStockBill.frob, 	ICStockBill.fdate, 	ICStockBill.FBillNo,	ICStockBillEntry .FEntryID,	t_Organization.f_112 ,	t_ICItem .F_111,	t_Item_3001.FName  as OrderType,  SUBSTRING(t_Stock.FName,1,3), abs(ICStockBillEntry .fqty),	 0 as UnitPrice  ,	0 as GrossAmount,	ICStockBill.fheadselfb0939 as TransactionType,	ICStockBill.FHeadSelfA9739  as ReasonCode,	ICSale .FBillNo ,	ICStockBillEntry .FEntryID, 0, 0");
+            cmdCO.Append(" from ICStockBill ");
+            cmdCO.Append(" inner join t_Organization on t_Organization .FItemID = ICStockBill .FSupplyID ");
+            cmdCO.Append(" inner join ICStockBillEntry on ICStockBillEntry.FInterID = ICStockBill.FInterID ");
+            cmdCO.Append(" inner join t_ICItem on t_ICItem.FItemID = ICStockBillEntry .FItemID ");
+            cmdCO.Append(" inner join t_Stock on t_Stock.FItemID = ICStockBillEntry .FDCStockID ");
+            cmdCO.Append(" left join t_Item_3001 on t_Item_3001.FItemID = ICStockBill.FHeadSelfB0940 ");
+            cmdCO.Append(" left join ICSale   on ICSale  .FInterID = ICStockBill.FRelateInvoiceID ");
+            cmdCO.Append(" where ICStockBill.FTranType = 29 and t_Stock.FName in(" + stockName1 + ") and ICStockBill.FDate = '" + OperateDate + "'");
 
             cmdCO.Append(" order by  ICStockBill.FBillNo ,ICStockBillEntry.FEntryID ");
 
@@ -108,6 +152,7 @@ namespace HuaLiQin
             expType = "CP"; //进货表
 
             QueryData(path, expType, cmdCP.ToString());
+
 
             expType = "SM"; //销售表
 

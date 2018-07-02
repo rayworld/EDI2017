@@ -23,6 +23,8 @@ namespace HuaLiQin
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
+            string stockNames = "'CSW','CSW1','CSW5','RET','EPD','JWI','JQU','JDA'";
+            string stockName1 = "'CSW2','CSW3','CSW4'";
             string AlconNo = textBox1 .Text ;
             StringBuilder cmdCP = new StringBuilder();
             cmdCP.Append(" SELECT  POInStock.FHeadSelfP0341 as ORNUM,	'O' as ORGRP,	'CV' as ORORIN,	POInStock.FDate as ORCDAT,	'O' as ORSELID,	'O' as ORBUYID,	'O' as ORSUNO,	'O' as ORSNAM,	'O' as ORSAD1,	'O' as ORSAD2,	'O' as ORSAD3,	'O' as ORSAD4,	'O' as ORCITY,	'O' as OROCTR,	POInStockEntry.FEntrySelfP0386 as OROLIN,	t_ICItem .FHelpCode  as ORPRDC,	POInStockEntry.fQty as ORRQTY,	'EA' as ORUOM,	t_Stock.FName  as ORSROM  ");
@@ -31,7 +33,15 @@ namespace HuaLiQin
             cmdCP.Append(" inner join t_ICItem on t_ICItem.FItemID = POInStockEntry.FItemID  ");
             cmdCP.Append(" inner join t_Stock on t_Stock.FItemID = POInStockEntry.FStockID  ");
             cmdCP.Append(" WHERE FHeadSelfP0341 = '" + AlconNo + "'");
-
+            cmdCP.Append(" AND t_Stock.FName =(" + stockNames + ") ");
+            cmdCP.Append(" union all ");
+            cmdCP.Append(" SELECT  POInStock.FHeadSelfP0341 as ORNUM,	'O' as ORGRP,	'CV' as ORORIN,	POInStock.FDate as ORCDAT,	'O' as ORSELID,	'O' as ORBUYID,	'O' as ORSUNO,	'O' as ORSNAM,	'O' as ORSAD1,	'O' as ORSAD2,	'O' as ORSAD3,	'O' as ORSAD4,	'O' as ORCITY,	'O' as OROCTR,	POInStockEntry.FEntrySelfP0386 as OROLIN,	t_ICItem .F_111  as ORPRDC,	POInStockEntry.fQty as ORRQTY,	'EA' as ORUOM,	t_Stock.FName  as ORSROM  ");
+            cmdCP.Append(" FROM POInStock ");
+            cmdCP.Append(" inner join POInStockEntry on POInStock .FInterID = POInStockEntry .FInterID  ");
+            cmdCP.Append(" inner join t_ICItem on t_ICItem.FItemID = POInStockEntry.FItemID  ");
+            cmdCP.Append(" inner join t_Stock on t_Stock.FItemID = POInStockEntry.FStockID  ");
+            cmdCP.Append(" WHERE FHeadSelfP0341 = '" + AlconNo + "'");
+            cmdCP.Append(" AND t_Stock.FName in(" + stockName1 + ") ");
             DataTable dt = SqlHelper.ExecuteDataSet(cmdCP.ToString(), null).Tables[0];
             dataGridView1.DataSource = dt;
         }
@@ -52,13 +62,13 @@ namespace HuaLiQin
             if( retval > 0)
             {
                 //MessageBox.Show("确认成功 " + retval + " 单！");
-                DesktopAlert.Show("<H2>" + "确认成功 " + retval + " 单！" + "</H2>");
+                DesktopAlert.Show("<h2>" + "确认成功 " + retval + " 单！" + "</h2>");
 
             }
             else
             {
                 //MessageBox.Show("确认失败！");
-                DesktopAlert.Show("<H2>" + "确认失败！" + "</H2>");
+                DesktopAlert.Show("<h2>" + "确认失败！" + "</h2>");
             }
         }
         #endregion

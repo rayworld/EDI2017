@@ -18,11 +18,9 @@ namespace HuaLiQin.DAL
         public bool Exists(string fAlconItemID)
         {
             bool retVal = false;
-            int recCount = int.Parse(SqlHelper.ExecuteScalar("SELECT Count(1) FROM t_ICItem WHERE FHelpCode = '" + fAlconItemID + "'", null).ToString());
-            if (recCount > 0)
-            {
-                retVal = true;
-            }
+            object recCount = SqlHelper.ExecuteScalar("SELECT Count(1) FROM t_ICItem WHERE (FHelpCode = '" + fAlconItemID + "') OR (F_111 = '" + fAlconItemID + "')", null);
+            retVal = recCount != null && int.Parse(recCount.ToString()) > 0 ? true : false;
+
             return retVal;
         }
 
@@ -34,7 +32,7 @@ namespace HuaLiQin.DAL
         {
 
             HuaLiQin.Model.t_ICItem model = new HuaLiQin.Model.t_ICItem();
-            DataTable dt = SqlHelper.ExecuteDataSet("SELECT TOP 1 * FROM t_ICItem WHERE fHelpCode='" + fAlconItemID + "'", null).Tables[0];
+            DataTable dt = SqlHelper.ExecuteDataSet("SELECT TOP 1 * FROM t_ICItem WHERE (FHelpCode = '" + fAlconItemID + "') OR (F_111 = '" + fAlconItemID + "')", null).Tables[0];
             if (dt.Rows.Count > 0)
             {
                 return DataRowToModel(dt.Rows[0]);
@@ -763,6 +761,10 @@ namespace HuaLiQin.DAL
                 {
                     model.F_109 = row["F_109"].ToString();
                 }
+                if (row["F_111"] != null)
+                {
+                    model.F_111 = row["F_111"].ToString();
+                }
                 if (row["F_110"] != null)
                 {
                     model.F_110 = row["F_110"].ToString();
@@ -1219,14 +1221,7 @@ namespace HuaLiQin.DAL
             parameters[32].Value = model.FHeadSelfP0341;
 
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
-            if (rows > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return rows > 0 ? true : false;
         }
 
         /// <summary>
@@ -1236,11 +1231,8 @@ namespace HuaLiQin.DAL
         /// <returns></returns>
         public string GetMaxFBillNo()
         {
-            string retVal = SqlHelper.ExecuteScalar("SELECT MAX(FBillNo) FROM POInStock WHERE FBillNo LIKE 'DR%'", null).ToString();
-            if (retVal == "")
-            { return ""; }
-            else
-            { return retVal; }
+            object retVal = SqlHelper.ExecuteScalar("SELECT MAX(FBillNo) FROM POInStock WHERE FBillNo LIKE 'DA%'", null);
+            return retVal != null ? retVal.ToString() : "";
         }
 
         /// <summary>
@@ -1250,8 +1242,17 @@ namespace HuaLiQin.DAL
         /// <returns></returns>
         public string GetMaxFInterID()
         {
-            SqlHelper.ExecuteNonQuery("UPDATE ICMaxNum SET FMaxNum = FMaxNum + 1 WHERE FTableName = 'poinstock'", null);
-            return SqlHelper.ExecuteScalar("SELECT FMaxNum FROM ICMaxNum WHERE FTableName = 'poinstock'", null).ToString();
+            int retVal = SqlHelper.ExecuteNonQuery("UPDATE ICMaxNum SET FMaxNum = FMaxNum + 1 WHERE FTableName = 'poinstock'", null);
+            if (retVal > 0)
+            {
+                object temp = SqlHelper.ExecuteScalar("SELECT FMaxNum FROM ICMaxNum WHERE FTableName = 'poinstock'", null);
+
+                return temp != null ? temp.ToString() : "";
+            }
+            else
+            {
+                return "";
+            }
         }
     }
 
@@ -1451,14 +1452,16 @@ namespace HuaLiQin.DAL
             parameters[87].Value = model.FEntrySelfP0386;
 
             //object obj = SqlHelper.ExecuteNonQuery(strSql.ToString(), parameters);
-            if (string.IsNullOrEmpty(""))//obj.ToString()))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            //if (string.IsNullOrEmpty(""))//obj.ToString()))
+            //{
+            //    return false;
+            //}
+            //else
+            //{
+            //    return true;
+            //}
+            int retVal = SqlHelper.ExecuteNonQuery(strSql.ToString(), parameters);
+            return retVal > 0 ? true : false;
         }
 
         /// <summary>
@@ -1637,13 +1640,17 @@ namespace HuaLiQin.DAL
         public int Login(string UserName, string password)
         {
             int retVal = 0;
-            string fsid =SqlHelper.ExecuteScalar(" SELECT fsid FROM t_user WHERE fName ='" + UserName + "' ").ToString();
-            if (fsid.Trim() == PassService.EncryptPassword(password, 12).Trim())
+            object obj =SqlHelper.ExecuteScalar(" SELECT fsid FROM t_user WHERE fName ='" + UserName + "' ");
+            if (obj != null && obj.ToString().Trim() == PassService.EncryptPassword(password, 12).Trim())
             {
-                string fUserId = SqlHelper.ExecuteScalar(" SELECT fuserid FROM t_user WHERE fName ='" + UserName + "' ", null).ToString();
-                if (!string.IsNullOrEmpty(fUserId))
+                object fUserId = SqlHelper.ExecuteScalar(" SELECT fuserid FROM t_user WHERE fName ='" + UserName + "' ", null);
+                if (fUserId != null)
                 {
-                    retVal = int.Parse(fUserId);
+                    retVal = int.Parse(fUserId.ToString());
+                }
+                else
+                {
+                    retVal = 0;
                 }
             }
             else
@@ -1667,16 +1674,9 @@ namespace HuaLiQin.DAL
             {
                 retVal = 0;
             }
-            string temp = SqlHelper.ExecuteScalar(" SELECT FItemID  FROM t_auxItem WHERE fName = '"+key+"'  AND ").ToString();
-            if (!string.IsNullOrEmpty(temp))
-            {
-                retVal = int.Parse(temp);
-            }
-            else
-            {
-                retVal = 0;
-            }
+            object temp = SqlHelper.ExecuteScalar(" SELECT FItemID  FROM t_auxItem WHERE fName = '"+key+"' ");
 
+            retVal = temp != null ? int.Parse(temp.ToString()) : 0;
             return retVal;
         }
     }
