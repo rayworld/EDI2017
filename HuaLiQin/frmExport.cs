@@ -18,9 +18,9 @@ namespace HuaLiQin
 
         #region public Ver
         DataTable dt = new DataTable();
-        // 使用助记码
+        //使用助记码
         string stockNames = "'CSW','CSW1','RET','EPD','JWI','JQU','JDA'";
-        // 使用助记码2
+        //使用助记码2
         string stockName1 = "'JQU1','EPD1','JDA1','JWI1','CSW2'";
         #endregion
 
